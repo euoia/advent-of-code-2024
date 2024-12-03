@@ -1,5 +1,15 @@
 const fs = require("fs");
 
+exports.readArgvFile = function () {
+  const fileName = process.argv[2];
+
+  if (fs.existsSync(fileName) === false) {
+    throw new Error(`File ${fileName} does not exist.`);
+  }
+
+  return fs.readFileSync(fileName, "utf-8");
+}
+
 exports.parseArgvFile = function (split = " ", mapFn = (n) => n) {
   const fileName = process.argv[2];
   if (fs.existsSync(fileName) === false) {
