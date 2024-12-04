@@ -18,14 +18,11 @@ function isGood(report) {
   });
 }
 
-const goodReports = [];
-for (const report of reports) {
+const goodReports = reports.filter(report => {
   const reportsToTry = new Combination(report, report.length - 1);
 
-  if ([...reportsToTry].some((report) => isGood(report))) {
-    goodReports.push(report);
-  }
-}
+  return [...reportsToTry].some((report) => isGood(report));
+});
 
 console.log(
   goodReports.length + " out of " + reports.length + " reports are good.",
