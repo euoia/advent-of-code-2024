@@ -1,48 +1,24 @@
-const fs = require("fs");
+const { parseArgvFile, arrayWindows } = require("../utils");
 
-//const input = fs.readFileSync("test-input.txt");
-const input = fs.readFileSync("input.txt");
+const reports = parseArgvFile(" ", (n) => parseInt(n));
 
-const reports = [];
+function isGood(report) {
+  const isIncreasing = report[1] > report[0];
 
-for (const line of input.toString().split("\n")) {
-  if (line === "") {
-    continue;
-  }
+  return arrayWindows(report, 2).every(([current, next]) => {
+    const diff = Math.abs(next - current);
 
-  reports.push(line.split(" ").map(n => parseInt(n)));
+    return (
+      diff >= 1 &&
+      diff <= 3 &&
+      ((next > current && isIncreasing) ||
+        (next < current && isIncreasing === false))
+    );
+  });
 }
 
-const goodReports = [];
-for (const report of reports) {
-  const isIncreasing = report[0] < report[1];
+const goodReports = reports.filter(report => isGood(report));
 
-  let isGood = true;
-
-  for (let i = 1; i < report.length; i++) {
-    const previous = report[i - 1];
-    const current = report[i];
-    const diff = Math.abs(previous - current);
-
-    if (diff < 1 || diff > 3) {
-      isGood = false;
-    }
-
-    if (previous >= current && isIncreasing) {
-      console.log(`bad because is increasing`, previous, current);
-      isGood = false;
-    }
-
-    if (previous <= current && isIncreasing === false) {
-      console.log(`bad because not increasing`, previous, current);
-      isGood = false;
-    }
-  }
-
-  if (isGood) {
-    goodReports.push(report);
-  }
-}
-
-console.dir(goodReports);
-console.log(goodReports.length);
+console.log(
+  goodReports.length + " out of " + reports.length + " reports are good.",
+);
