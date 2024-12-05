@@ -39,3 +39,11 @@ exports.arrayWindows = function* (arr, size) {
     yield arr.slice(i, i + size);
   }
 };
+
+exports.swapElementsByValue = function (arr, v1, v2) {
+  const v1Idx = arr.indexOf(v1);
+  const v2Idx = arr.indexOf(v2);
+
+  arr[v1Idx] = v2;
+  arr[v2Idx] = v1;
+}
