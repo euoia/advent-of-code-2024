@@ -33,7 +33,6 @@ const stepUntilDone = async () => {
 async function main() {
   await stepUntilDone();
 
-  console.log(obstacleCells);
   board.draw(null, obstacleCells);
   console.log(obstacleCells.size);
   process.exit(0);
