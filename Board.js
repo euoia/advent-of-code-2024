@@ -132,7 +132,7 @@ module.exports = class Board {
       v: this.cells[y][x],
       setVal: (val) => {
         this.setCellVal(x, y, val);
-      }
+      },
     };
   }
 
@@ -157,19 +157,25 @@ module.exports = class Board {
 
     [...bd.getCells()].forEach((cell) => {
       // Update for drawing.
-      const guardPathCellVal = guard.pathBoard.getCell(cell.x, cell.y).v;
+      if (guard) {
+        const guardPathCellVal = guard.pathBoard.getCell(cell.x, cell.y).v;
 
-      if (guard.cell && guard.cell.x === cell.x && guard.cell.y === cell.y) {
-        bd.setCellVal(cell.x, cell.y, "^");
-      } else if (
-        (guardPathCellVal.has("n") || guardPathCellVal.has("s")) &&
-        (guardPathCellVal.has("e") || guardPathCellVal.has("w"))
-      ) {
-        bd.setCellVal(cell.x, cell.y, "+");
-      } else if (guardPathCellVal.has("n") || guardPathCellVal.has("s")) {
-        bd.setCellVal(cell.x, cell.y, "|");
-      } else if (guardPathCellVal.has("e") || guardPathCellVal.has("w")) {
-        bd.setCellVal(cell.x, cell.y, "-");
+        if (
+          guard.cell &&
+          guard.cell.x === cell.x &&
+          guard.cell.y === cell.y
+        ) {
+          bd.setCellVal(cell.x, cell.y, "^");
+        } else if (
+          (guardPathCellVal.has("n") || guardPathCellVal.has("s")) &&
+          (guardPathCellVal.has("e") || guardPathCellVal.has("w"))
+        ) {
+          bd.setCellVal(cell.x, cell.y, "+");
+        } else if (guardPathCellVal.has("n") || guardPathCellVal.has("s")) {
+          bd.setCellVal(cell.x, cell.y, "|");
+        } else if (guardPathCellVal.has("e") || guardPathCellVal.has("w")) {
+          bd.setCellVal(cell.x, cell.y, "-");
+        }
       }
 
       for (const obstacleCell of obstacleCells) {

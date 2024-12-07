@@ -31,14 +31,6 @@ module.exports = class Guard {
   }
 
   get canStepForward() {
-    if (this.cellInFront === null) {
-      return true;
-    }
-
-    if (this.cellInFront.v === "O") {
-      console.log(`Bounced off an obstacle at ${this.cellInFront.x}, ${this.cellInFront.y}`);
-    }
-
     // Allow the guard to step out of bounds.
     return this.cellInFront === null || ['#', 'O'].includes(this.cellInFront.v) === false
   }
@@ -56,7 +48,6 @@ module.exports = class Guard {
       this.stepForward();
     } else {
       this.rotate();
-      this.stepForward();
     }
 
     this.stepsTaken += 1;
@@ -79,7 +70,6 @@ module.exports = class Guard {
     if (this.cell === null) {
       return false;
     }
-
 
     return this.pathBoard
       .getCellVal(this.cell.x, this.cell.y)
