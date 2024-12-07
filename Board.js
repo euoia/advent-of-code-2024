@@ -126,10 +126,14 @@ module.exports = class Board {
       return null;
     }
 
+    const board = this;
+
     return {
       x,
       y,
-      v: this.cells[y][x],
+      get v() {
+        return board.cells[y][x];
+      },
       setVal: (val) => {
         this.setCellVal(x, y, val);
       },
@@ -160,11 +164,7 @@ module.exports = class Board {
       if (guard) {
         const guardPathCellVal = guard.pathBoard.getCell(cell.x, cell.y).v;
 
-        if (
-          guard.cell &&
-          guard.cell.x === cell.x &&
-          guard.cell.y === cell.y
-        ) {
+        if (guard.cell && guard.cell.x === cell.x && guard.cell.y === cell.y) {
           bd.setCellVal(cell.x, cell.y, "^");
         } else if (
           (guardPathCellVal.has("n") || guardPathCellVal.has("s")) &&

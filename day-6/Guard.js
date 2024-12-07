@@ -8,12 +8,7 @@ module.exports = class Guard {
     this.guardDirections = ["n", "e", "s", "w"];
     this.directionIdx = 0;
 
-    // Initialize the path board.
-    [...this.pathBoard.getCells()].forEach((cell) => {
-      // Store the set of directions the guard has taken on each cell.
-      // We can use this to determine if a loop is possible.
-      this.pathBoard.setCellVal(cell.x, cell.y, new Set());
-    });
+    this.resetPath();
   }
 
   get direction() {
@@ -75,5 +70,17 @@ module.exports = class Guard {
       .getCellVal(this.cell.x, this.cell.y)
       .has(this.direction);
 
+  }
+
+  resetPath() {
+    this.pathBoard = this.board.clone();
+    this.stepsTaken = 0;
+
+    // Initialize the path board.
+    this.pathBoard.getCells().forEach((cell) => {
+      // Store the set of directions the guard has taken on each cell.
+      // We can use this to determine if a loop is possible.
+      cell.setVal(new Set());
+    });
   }
 };

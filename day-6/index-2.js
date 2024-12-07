@@ -8,13 +8,16 @@ const board = new Board(input);
 const obstacleCells = new Set();
 
 const stepUntilDone = async () => {
+  // Check all free cells.
   const cellsToCheck = board.getCells().filter((cell) => cell.v === ".");
-  for (const cell of cellsToCheck) {
-    cell.setVal("O");
 
-    // Store the path the guard has taken.
+  const startCell = board.getCells().find((cell) => cell.v === "^");
+
+  for (const checkCell of cellsToCheck) {
+    checkCell.setVal("O");
+
     const guard = new Guard(board);
-    guard.cell = board.getCells().find((cell) => cell.v === "^");
+    guard.cell = startCell;
 
     while (guard.cell !== null && guard.isInLoop === false) {
       guard.step();
@@ -23,10 +26,10 @@ const stepUntilDone = async () => {
     }
 
     if (guard.isInLoop) {
-      obstacleCells.add(cell);
+      obstacleCells.add(checkCell);
     }
 
-    cell.setVal(".");
+    checkCell.setVal(".");
   }
 };
 
