@@ -1,3 +1,5 @@
+const { cloneDeep } = require("lodash");
+
 module.exports = class Board {
   // Create a board.
   constructor(boardInput) {
@@ -39,13 +41,6 @@ module.exports = class Board {
     return this.cells.map((row) => row.join("")).join("\n");
   }
 
-  // Get a cell at a specific position.
-  // x: The x index (relative to the left).
-  // t: The y index (relative to the top).
-  get(x, y) {
-    return this.cells[x]?.[y] ?? null;
-  }
-
   // Get an array of cells, starting at x and y in a specific direction and of
   // a specific length.
   getCompassCellsInDirectionFromCell(x, y, dir, length) {
@@ -79,12 +74,12 @@ module.exports = class Board {
   getDiagonalsAroundCell(x, y, length) {
     const totalLength = length * 2 + 1;
 
-    const neCells = this.getOffsetsOfLength("ne", totalLength, {centered: true}).map(
-      ([offsetX, offsetY]) => this.getCellVal(x + offsetX, y + offsetY),
-    );
-    const seCells = this.getOffsetsOfLength("se", totalLength, {centered: true}).map(
-      ([offsetX, offsetY]) => this.getCellVal(x + offsetX, y + offsetY),
-    );
+    const neCells = this.getOffsetsOfLength("ne", totalLength, {
+      centered: true,
+    }).map(([offsetX, offsetY]) => this.getCellVal(x + offsetX, y + offsetY));
+    const seCells = this.getOffsetsOfLength("se", totalLength, {
+      centered: true,
+    }).map(([offsetX, offsetY]) => this.getCellVal(x + offsetX, y + offsetY));
 
     return [neCells, seCells];
   }
@@ -102,19 +97,88 @@ module.exports = class Board {
     );
   }
 
+  getCellInDirectionFromCell(x, y, dir) {
+    const [offsetX, offsetY] = this.compassOffsets[dir];
+    return this.getCell(x + offsetX, y + offsetY);
+  }
+
   getCellVal(xIdx, yIdx) {
     return this.cells[yIdx]?.[xIdx] ?? null;
+  }
+
+  setCellVal(xIdx, yIdx, val) {
+    if (typeof val === "function") {
+      val = val(this.cells[yIdx][xIdx]);
+    }
+
+    this.cells[yIdx][xIdx] = val;
+  }
+
+  cellLocationsAreEqual(cell1, cell2) {
+    return cell1.x === cell2.x && cell1.y === cell2.y;
+  }
+
+  // Get a cell at a specific position.
+  // x: The x index (relative to the left).
+  // t: The y index (relative to the top).
+  getCell(x, y) {
+    if (x < 0 || x >= this.width || y < 0 || y >= this.height) {
+      return null;
+    }
+
+    return {
+      x,
+      y,
+      v: this.cells[y][x],
+      setVal: (val) => {
+        this.setCellVal(x, y, val);
+      }
+    };
   }
 
   *getCells() {
     for (let yIdx = 0; yIdx < this.height; yIdx++) {
       for (let xIdx = 0; xIdx < this.width; xIdx++) {
-        yield {
-          x: xIdx,
-          y: yIdx,
-          v: this.cells[yIdx][xIdx],
-        };
+        yield this.getCell(xIdx, yIdx);
       }
     }
+  }
+
+  clone() {
+    const newBoard = new Board([[]]);
+    newBoard.cells = cloneDeep(this.cells);
+    newBoard.width = this.width;
+    newBoard.height = this.height;
+    return newBoard;
+  }
+
+  draw(guard, obstacleCells = []) {
+    const bd = this.clone();
+
+    [...bd.getCells()].forEach((cell) => {
+      // Update for drawing.
+      const guardPathCellVal = guard.pathBoard.getCell(cell.x, cell.y).v;
+
+      if (guard.cell && guard.cell.x === cell.x && guard.cell.y === cell.y) {
+        bd.setCellVal(cell.x, cell.y, "^");
+      } else if (
+        (guardPathCellVal.has("n") || guardPathCellVal.has("s")) &&
+        (guardPathCellVal.has("e") || guardPathCellVal.has("w"))
+      ) {
+        bd.setCellVal(cell.x, cell.y, "+");
+      } else if (guardPathCellVal.has("n") || guardPathCellVal.has("s")) {
+        bd.setCellVal(cell.x, cell.y, "|");
+      } else if (guardPathCellVal.has("e") || guardPathCellVal.has("w")) {
+        bd.setCellVal(cell.x, cell.y, "-");
+      }
+
+      for (const obstacleCell of obstacleCells) {
+        if (cell.x === obstacleCell.x && cell.y === obstacleCell.y) {
+          bd.setCellVal(cell.x, cell.y, "O");
+        }
+      }
+    });
+
+    console.log(bd.toString());
   }
 };
