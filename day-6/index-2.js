@@ -10,7 +10,6 @@ const obstacleCells = new Set();
 const stepUntilDone = async () => {
   const cellsToCheck = board.getCells().filter((cell) => cell.v === ".");
   for (const cell of cellsToCheck) {
-    console.log(`Checking ${cell.x}, ${cell.y}`);
     cell.setVal("O");
 
     // Store the path the guard has taken.
@@ -41,10 +40,3 @@ async function main() {
 }
 
 main();
-
-// 380 is too low.
-// 1015 is too low.
-// 1707 is not right.
-// 1543 is not right.
-// 1590 is not right.
-// 1606 is not right.
