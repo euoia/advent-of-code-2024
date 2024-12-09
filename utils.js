@@ -38,6 +38,12 @@ exports.arrayWindows = function* (arr, size) {
   }
 };
 
+exports.arraySlices = function* (arr, size) {
+  for (let i = 0; i < arr.length; i += size) {
+    yield arr.slice(i, i + size);
+  }
+};
+
 exports.swapElementsByValue = function (arr, v1, v2) {
   const v1Idx = arr.indexOf(v1);
   const v2Idx = arr.indexOf(v2);
