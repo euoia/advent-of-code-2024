@@ -4,8 +4,6 @@ const { uniqWith } = require("lodash");
 
 const board = new Board(parseArgvFile("", (n) => parseInt(n)));
 
-board.draw();
-
 // n, e, s, w.
 const dirs = [
   [0, 1],
