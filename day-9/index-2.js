@@ -35,9 +35,9 @@ const compact = (blocks, candidateBlockStartIdx) => {
     candidateBlockIdx -= 1
   ) {
     const candidateBlock = blocks[candidateBlockIdx];
-    console.log(
-      `Finding space for candidate block ${candidateBlock.id}, files=${candidateBlock.files}`,
-    );
+    // console.log(
+    //   `Finding space for candidate block ${candidateBlock.id}, files=${candidateBlock.files}`,
+    // );
 
     for (
       let candidateSpaceIdx = 0;
@@ -47,9 +47,9 @@ const compact = (blocks, candidateBlockStartIdx) => {
       const candidateSpace = blocks[candidateSpaceIdx];
 
       if (candidateBlock.files <= candidateSpace.freeSpace) {
-        console.log(
-          `Found a space at idx=${candidateSpaceIdx} for candidate block ${candidateBlock.id}`,
-        );
+        // console.log(
+        //   `Found a space at idx=${candidateSpaceIdx} for candidate block ${candidateBlock.id}`,
+        // );
 
         if (candidateBlock.id > 1) {
           const previousBlock = blocks[candidateBlockIdx - 1];
@@ -67,9 +67,9 @@ const compact = (blocks, candidateBlockStartIdx) => {
       }
     }
 
-    console.log(
-      `Failed to find space for candidate block ${candidateBlock.id}`,
-    );
+    // console.log(
+    //   `Failed to find space for candidate block ${candidateBlock.id}`,
+    // );
   }
 
   return blocks;
@@ -83,8 +83,8 @@ const getChecksum = (blocks) => {
       checksum += blockIdx * block.id;
       blockIdx += 1;
 
-      console.log(`${blockIdx} * ${block.id} = ${blockIdx * block.id}`);
-      console.log(`Checksum: ${checksum}`);
+      // console.log(`${blockIdx} * ${block.id} = ${blockIdx * block.id}`);
+      // console.log(`Checksum: ${checksum}`);
     }
 
     for (
@@ -99,7 +99,5 @@ const getChecksum = (blocks) => {
   return checksum;
 };
 
-drawDiskMap(blocks);
 const compactedBlocks = compact(blocks, blocks.length - 1);
-drawDiskMap(compactedBlocks);
 console.log(getChecksum(compactedBlocks));

@@ -137,6 +137,11 @@ module.exports = class Board {
       setVal: (val) => {
         this.setCellVal(x, y, val);
       },
+      toString: () => {
+        return `x=${x} y=${y} v=${this.cells[y][x]}`;
+      },
+      hasSameLocation:(cell) =>
+        cell.x === x && cell.y === y,
     };
   }
 
@@ -156,35 +161,67 @@ module.exports = class Board {
     return newBoard;
   }
 
+  *getRows() {
+    for (let yIdx = 0; yIdx < this.height; yIdx++) {
+      const row = [];
+      for (let xIdx = 0; xIdx < this.width; xIdx++) {
+        row.push(this.getCell(xIdx, yIdx));
+      }
+      yield row;
+    }
+  }
+
+  setAllCellValues(val) {
+    for (const cell of this.getCells()) {
+      cell.setVal(val);
+    }
+  }
+
   draw(guard, obstacleCells = []) {
-    const bd = this.clone();
+    let str = "";
+    str = `+` + "-".repeat(this.width) + `+\n`;
 
-    [...bd.getCells()].forEach((cell) => {
-      // Update for drawing.
-      if (guard) {
-        const guardPathCellVal = guard.pathBoard.getCell(cell.x, cell.y).v;
+    for (const row of this.getRows()) {
+      let rowStr = "";
+      for (const cell of row) {
+        let cellStr = cell.v;
 
-        if (guard.cell && guard.cell.x === cell.x && guard.cell.y === cell.y) {
-          bd.setCellVal(cell.x, cell.y, "^");
-        } else if (
-          (guardPathCellVal.has("n") || guardPathCellVal.has("s")) &&
-          (guardPathCellVal.has("e") || guardPathCellVal.has("w"))
-        ) {
-          bd.setCellVal(cell.x, cell.y, "+");
-        } else if (guardPathCellVal.has("n") || guardPathCellVal.has("s")) {
-          bd.setCellVal(cell.x, cell.y, "|");
-        } else if (guardPathCellVal.has("e") || guardPathCellVal.has("w")) {
-          bd.setCellVal(cell.x, cell.y, "-");
+        // Update for drawing.
+        if (guard) {
+          const guardPathCellVal = guard.pathBoard.getCell(cell.x, cell.y).v;
+
+          if (
+            guard.cell &&
+            guard.cell.x === cell.x &&
+            guard.cell.y === cell.y
+          ) {
+            cellStr = "^";
+          } else if (
+            (guardPathCellVal.has("n") || guardPathCellVal.has("s")) &&
+            (guardPathCellVal.has("e") || guardPathCellVal.has("w"))
+          ) {
+            cellStr = "+";
+          } else if (guardPathCellVal.has("n") || guardPathCellVal.has("s")) {
+            cellStr = "|";
+          } else if (guardPathCellVal.has("e") || guardPathCellVal.has("w")) {
+            cellStr = "-";
+          }
         }
+
+        for (const obstacleCell of obstacleCells) {
+          if (cell.x === obstacleCell.x && cell.y === obstacleCell.y) {
+            cellStr = "O";
+          }
+        }
+
+        rowStr += cellStr;
       }
 
-      for (const obstacleCell of obstacleCells) {
-        if (cell.x === obstacleCell.x && cell.y === obstacleCell.y) {
-          bd.setCellVal(cell.x, cell.y, "O");
-        }
-      }
-    });
+      str += `|` + rowStr + `|` + "\n";
+    }
 
-    console.log(bd.toString());
+    str += `+` + "-".repeat(this.width) + `+`;
+
+    console.log(str);
   }
 };

@@ -17,8 +17,6 @@ for (const [files, freeSpace] of arraySlices(inputNums, 2)) {
 }
 
 const drawDiskMap = (blocks) => {
-  console.dir(blocks);
-
   let str = "";
   for (const block of blocks) {
     str +=
@@ -42,11 +40,9 @@ const compact = (blocks) => {
   const lastBlock = blocks[blocks.length - 1];
 
   if (firstBlockWithFreeSpace.id === lastBlock.id) {
-    console.log(`Moving ${lastBlock.id} to first block`);
     firstBlockWithFreeSpace.files += 1;
     firstBlockWithFreeSpace.freeSpace -= 1;
   } else {
-    console.log(`Creating new block with id ${lastBlock.id}`);
     blocks.splice(firstBlockWithFreeSpaceIdx + 1, 0, {
       id: lastBlock.id,
       freeSpace: firstBlockWithFreeSpace.freeSpace - 1,
@@ -83,7 +79,6 @@ const getChecksum = (blocks) => {
   return checksum;
 };
 
-console.log(drawDiskMap(blocks));
 compact(blocks);
-console.log(drawDiskMap(blocks));
+// drawDiskMap(blocks);
 console.log(getChecksum(blocks));
