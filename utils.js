@@ -71,3 +71,12 @@ exports.awaitUserInput = function (prompt) {
     rl.question(prompt ?? "Continue...", resolve);
   });
 };
+
+exports.stringSlices = (str, size) => {
+  const slices = [];
+  for (let i = 0; i < str.length; i += size) {
+    slices.push(str.slice(i, i + size));
+  }
+
+  return slices;
+}
