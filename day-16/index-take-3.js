@@ -101,7 +101,6 @@ const solve = async (cell, dir, cost = 0) => {
           return null;
         }
 
-        // TODO: Don't include if there are stack items with a path item that has this cell but with a lower cost.
         const cost = next.cost + stepCost + costOfRotation(next.dir, d);
         return {
           dir: d,
