@@ -37,6 +37,25 @@ module.exports = class Board {
     this.compassDirs = Object.keys(this.compassOffsets);
   }
 
+  initialize(width, height, val) {
+    this.width = width;
+    this.height = height;
+    this.cells = Array.from({ length: height }, () =>
+      Array.from({ length: width }),
+    );
+
+    for (let yIdx = 0; yIdx < height; yIdx++) {
+      for (let xIdx = 0; xIdx < width; xIdx++) {
+        let newVal = val;
+        if (typeof val === "function") {
+          newVal = val();
+        }
+
+        this.cells[yIdx][xIdx] = newVal;
+      }
+    }
+  }
+
   toString() {
     return this.cells.map((row) => row.join("")).join("\n");
   }
@@ -98,8 +117,12 @@ module.exports = class Board {
   }
 
   getCellInDirectionFromCell(x, y, dir) {
+    if (Object.keys(this.compassOffsets).includes(dir) === false) {
+      throw new Error(`Invalid direction: ${dir}`);
+    }
+
     const [offsetX, offsetY] = this.compassOffsets[dir];
-    return this.getCell(x + offsetX, y + offsetY);
+    return this.get(x + offsetX, y + offsetY);
   }
 
   getCellVal(xIdx, yIdx) {
@@ -107,6 +130,19 @@ module.exports = class Board {
   }
 
   setCellVal(xIdx, yIdx, val) {
+    console.warn(`setCellVal is deprecated. Use set instead.`);
+    this.set(xIdx, yIdx, val);
+  }
+
+  checkBounds(xIdx, yIdx) {
+    if (xIdx < 0 || xIdx >= this.width || yIdx < 0 || yIdx >= this.height) {
+      throw new Error(`Index out of bounds: ${xIdx}, ${yIdx}`);
+    }
+  }
+
+  set(xIdx, yIdx, val) {
+    this.checkBounds(xIdx, yIdx);
+
     if (typeof val === "function") {
       val = val(this.cells[yIdx][xIdx]);
     }
@@ -118,10 +154,12 @@ module.exports = class Board {
     return cell1.x === cell2.x && cell1.y === cell2.y;
   }
 
-  // Get a cell at a specific position.
-  // x: The x index (relative to the left).
-  // t: The y index (relative to the top).
   getCell(x, y) {
+    console.warn(`getCell is deprecated. Use get instead.`);
+    return this.get(x, y);
+  }
+
+  get(x, y) {
     if (x < 0 || x >= this.width || y < 0 || y >= this.height) {
       return null;
     }
@@ -135,20 +173,22 @@ module.exports = class Board {
         return board.cells[y][x];
       },
       setVal: (val) => {
-        this.setCellVal(x, y, val);
+        board.set(x, y, val);
       },
       toString: () => {
         return `x=${x} y=${y} v=${this.cells[y][x]}`;
       },
-      hasSameLocation:(cell) =>
-        cell.x === x && cell.y === y,
+      hasSameLocation: (cell) => cell.x === x && cell.y === y,
+      getAdjacentCell(dir) {
+        return board.getCellInDirectionFromCell(x, y, dir);
+      },
     };
   }
 
   *getCells() {
     for (let yIdx = 0; yIdx < this.height; yIdx++) {
       for (let xIdx = 0; xIdx < this.width; xIdx++) {
-        yield this.getCell(xIdx, yIdx);
+        yield this.get(xIdx, yIdx);
       }
     }
   }
@@ -165,7 +205,7 @@ module.exports = class Board {
     for (let yIdx = 0; yIdx < this.height; yIdx++) {
       const row = [];
       for (let xIdx = 0; xIdx < this.width; xIdx++) {
-        row.push(this.getCell(xIdx, yIdx));
+        row.push(this.get(xIdx, yIdx));
       }
       yield row;
     }
@@ -177,44 +217,14 @@ module.exports = class Board {
     }
   }
 
-  draw(guard, obstacleCells = []) {
+  draw(drawFn = (v) => v.toString()) {
     let str = "";
     str = `+` + "-".repeat(this.width) + `+\n`;
 
     for (const row of this.getRows()) {
       let rowStr = "";
       for (const cell of row) {
-        let cellStr = cell.v;
-
-        // Update for drawing.
-        if (guard) {
-          const guardPathCellVal = guard.pathBoard.getCell(cell.x, cell.y).v;
-
-          if (
-            guard.cell &&
-            guard.cell.x === cell.x &&
-            guard.cell.y === cell.y
-          ) {
-            cellStr = "^";
-          } else if (
-            (guardPathCellVal.has("n") || guardPathCellVal.has("s")) &&
-            (guardPathCellVal.has("e") || guardPathCellVal.has("w"))
-          ) {
-            cellStr = "+";
-          } else if (guardPathCellVal.has("n") || guardPathCellVal.has("s")) {
-            cellStr = "|";
-          } else if (guardPathCellVal.has("e") || guardPathCellVal.has("w")) {
-            cellStr = "-";
-          }
-        }
-
-        for (const obstacleCell of obstacleCells) {
-          if (cell.x === obstacleCell.x && cell.y === obstacleCell.y) {
-            cellStr = "O";
-          }
-        }
-
-        rowStr += cellStr;
+        rowStr += drawFn(cell);
       }
 
       str += `|` + rowStr + `|` + "\n";

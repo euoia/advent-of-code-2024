@@ -29,10 +29,6 @@ exports.parseArgvFile = function (split = " ", mapFn = (n) => n) {
 };
 
 exports.arrayWindows = function* (arr, size) {
-  if (size > arr.length) {
-    throw new Error("Size is greater than array length.");
-  }
-
   for (let i = 0; i <= arr.length - size; i++) {
     yield arr.slice(i, i + size);
   }
@@ -80,3 +76,15 @@ exports.stringSlices = (str, size) => {
 
   return slices;
 }
+
+// Greatest Common Divisor.
+exports.gcd = function (a, b) {
+  if (b === 0) {
+    return a;
+  }
+
+  return exports.gcd(b, a % b);
+}
+
+
+
