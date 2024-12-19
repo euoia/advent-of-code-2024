@@ -1,5 +1,6 @@
 const { readArgvFile, awaitUserInput } = require("../utils");
 const Board = require("../Board");
+const { sortBy, uniqWith } = require("lodash");
 
 const input = readArgvFile();
 const boardInput = input.split("\n").slice(0, -1);
@@ -122,8 +123,8 @@ const solve = async (cell, dir, cost = 0) => {
 
     // console.log(`p nextCells`, nextCells);
 
-    const nextEndCell = nextCells.find((nc) =>
-      nc.cell.hasSameLocation(endCell),
+    const nextEndCell = nextCells.find(
+      (nc) => nc.cell.x === endCell.x && nc.cell.y === endCell.y,
     );
 
     if (nextEndCell !== undefined) {
@@ -131,35 +132,11 @@ const solve = async (cell, dir, cost = 0) => {
       process.exit(1);
     }
 
-    const newStack = [];
-    for (const stackItem of stack) {
-      let itemToPush = stackItem;
-
-      // Ensure unique x,y,dir.
-      const nextCellIdx = nextCells.findIndex(
-        (nextCell) =>
-          stackItem.cell.x === nextCell.cell.x &&
-          stackItem.cell.y === nextCell.cell.y &&
-          stackItem.dir === nextCell.dir &&
-          stackItem.cost > nextCell.cost,
-      );
-
-      if (nextCellIdx !== -1) {
-        console.log(
-          `replace=${itemToPush}`,
-          itemStr(stackItem),
-          itemStr(nextCells[nextCellIdx]),
-        );
-        itemToPush = nextCells[nextCellIdx];
-        nextCells.splice(nextCellIdx, 1);
-      }
-
-      newStack.push(itemToPush);
-    }
-
-    newStack.push(...nextCells);
-    newStack.sort((a, b) => a.cost - b.cost);
-    stack = newStack;
+    stack = uniqWith(
+      sortBy([...stack, ...nextCells], "cost"),
+      (a, b) =>
+        a.cell.x === b.cell.x && a.cell.y === b.cell.y && a.dir === b.dir,
+    );
   }
 };
 
