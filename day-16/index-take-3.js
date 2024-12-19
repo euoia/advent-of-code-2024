@@ -27,10 +27,12 @@ const maxIters = Infinity;
 let iters = 0;
 
 const costOfRotation = (d1, d2) => {
-  if (dirs.includes(d1) === false || dirs.includes(d2) === false) {
-    throw new Error(`Invalid direction: ${d1} or ${d2}`);
-  }
-  return Math.abs(dirs.indexOf(d1) - dirs.indexOf(d2)) * rotateCost;
+  return {
+    n: { n: 0, e: 1, w: 1, s: 2 },
+    e: { e: 0, n: 1, w: 2, s: 1 },
+    s: { s: 0, n: 2, e: 1, w: 1 },
+    w: { w: 0, n: 1, e: 2, s: 1 },
+  }[d1][d2] * rotateCost;
 };
 
 const itemStr = (item) => {
@@ -41,16 +43,18 @@ const itemStr = (item) => {
   return `${item.cell.x},${item.cell.y} d=${item.dir} c=${item.cost}`;
 };
 
+const dirChars = {
+  n: "^",
+  e: ">",
+  s: "v",
+  w: "<",
+};
+
 const drawStack = (stack) => {
   board.draw((cell) => {
     const stackItem = stack.find((si) => si.cell.hasSameLocation(cell));
     if (stackItem) {
-      return {
-        n: "^",
-        e: ">",
-        s: "v",
-        w: "<",
-      }[stackItem.dir];
+      return dirChars[stackItem.dir];
     }
 
     return cell.v;
@@ -71,16 +75,16 @@ const solve = async (cell, dir) => {
 
     let next = stack.shift();
 
-    // console.log(`popped: `, itemStr(next));
-    // board.draw((cell) => {
-    //   if (cell.hasSameLocation(next.cell)) {
-    //     return "*";
-    //   }
-    //
-    //   return cell.v;
-    // });
+   // console.log(`popped: `, itemStr(next));
+   // board.draw((cell) => {
+   //   if (cell.hasSameLocation(next.cell)) {
+   //     return "*";
+   //   }
+   // 
+   //   return cell.v;
+   // });
 
-    // await awaitUserInput();
+   // await awaitUserInput();
 
     if (iters % 1000 === 0) {
       console.log(
@@ -95,6 +99,7 @@ const solve = async (cell, dir) => {
         if (
           nextCell === null ||
           nextCell.v === "#" ||
+          d === oppositeDirs[d] ||
           // Loop.
           next.path.some((p) => p.x === nextCell.x && p.y === nextCell.y) ===
             true
@@ -129,6 +134,17 @@ const solve = async (cell, dir) => {
 
     if (nextEndCell !== undefined) {
       console.log(`Found end cell, cost=`, nextEndCell.cost);
+      board.draw((cell) => {
+        const pathItem = nextEndCell.path.find((p) =>
+          p.x === cell.x && p.y === cell.y,
+        );
+
+        if (pathItem) {
+          return dirChars[pathItem.dir];
+        }
+
+        return cell.v;
+      });
       process.exit(1);
     }
 
@@ -138,6 +154,8 @@ const solve = async (cell, dir) => {
         a.cell.x === b.cell.x && a.cell.y === b.cell.y && a.dir === b.dir,
     );
   }
+
+  console.log(`No solution.`);
 };
 
 const main = async () => {
@@ -145,7 +163,6 @@ const main = async () => {
 };
 
 main().then(() => {
-  console.log(`Done`);
 });
 
 // 378908 too high.
@@ -155,3 +172,4 @@ main().then(() => {
 // 164460
 // 266680
 // 332756
+// 102508
