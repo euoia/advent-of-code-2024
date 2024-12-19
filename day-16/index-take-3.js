@@ -57,30 +57,30 @@ const drawStack = (stack) => {
   });
 };
 
-const solve = async (cell, dir, cost = 0) => {
+const solve = async (cell, dir) => {
   let stack = [];
-  stack.push({ cell, dir, cost, path: [{ x: cell.x, y: cell.y, dir }] });
+  stack.push({ cell, dir, cost: 0, path: [{ x: cell.x, y: cell.y, dir }] });
 
   while (stack.length > 0) {
     if (iters++ > maxIters) {
       process.exit(1);
     }
 
-    drawStack(stack);
-    await awaitUserInput();
+    // drawStack(stack);
+    // await awaitUserInput();
 
     let next = stack.shift();
 
-    console.log(`popped: `, itemStr(next));
-    board.draw((cell) => {
-      if (cell.hasSameLocation(next.cell)) {
-        return "*";
-      }
+    // console.log(`popped: `, itemStr(next));
+    // board.draw((cell) => {
+    //   if (cell.hasSameLocation(next.cell)) {
+    //     return "*";
+    //   }
+    //
+    //   return cell.v;
+    // });
 
-      return cell.v;
-    });
-
-    await awaitUserInput();
+    // await awaitUserInput();
 
     if (iters % 1000 === 0) {
       console.log(
@@ -93,9 +93,9 @@ const solve = async (cell, dir, cost = 0) => {
         const nextCell = next.cell.getAdjacentCell(d);
 
         if (
-          next.dir === oppositeDirs[next.dir] ||
           nextCell === null ||
           nextCell.v === "#" ||
+          // Loop.
           next.path.some((p) => p.x === nextCell.x && p.y === nextCell.y) ===
             true
         ) {
@@ -141,7 +141,7 @@ const solve = async (cell, dir, cost = 0) => {
 };
 
 const main = async () => {
-  await solve(startCell, startDir, 0);
+  await solve(startCell, startDir);
 };
 
 main().then(() => {
