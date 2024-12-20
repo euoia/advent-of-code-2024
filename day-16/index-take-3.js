@@ -99,7 +99,8 @@ const solve = async (cell, dir) => {
         if (
           nextCell === null ||
           nextCell.v === "#" ||
-          d === oppositeDirs[d] ||
+          // Don't go backwards.
+          d === oppositeDirs[next.dir] ||
           // Loop.
           next.path.some((p) => p.x === nextCell.x && p.y === nextCell.y) ===
             true
@@ -121,7 +122,7 @@ const solve = async (cell, dir) => {
           // Already an item in the stack with a lower cost to this cell.
           stack.some((si) =>
             si.path.some(
-              (p) => p.x === nc.cell.x && p.y === nc.cell.y && p.cost < nc.cost,
+              (p) => p.x === nc.cell.x && p.y === nc.cell.y && p.cost < nc.cost && p.dir === nc.dir,
             ),
           ) === false,
       );
